@@ -7,7 +7,7 @@ import 'package:operance_datatable/src/operance_data_column.dart';
 import 'package:operance_datatable/src/operance_data_decoration.dart';
 
 /// A widget that represents a row in the OperanceDataTable.
-class OperanceDataRow<T> extends StatelessWidget {
+class OperanceDataRow<T> extends StatefulWidget {
   /// Creates an instance of [OperanceDataRow].
   ///
   /// The [columnOrder], [columns], [row], [index] and [tableWidth] parameters
@@ -97,12 +97,17 @@ class OperanceDataRow<T> extends StatelessWidget {
   final bool showCheckbox;
 
   @override
+  State<OperanceDataRow<T>> createState() => _OperanceDataRowState<T>();
+}
+
+class _OperanceDataRowState<T> extends State<OperanceDataRow<T>> {
+  @override
   Widget build(BuildContext context) {
-    final colors = decoration.colors;
-    final icons = decoration.icons;
-    final sizes = decoration.sizes;
-    final styles = decoration.styles;
-    final ui = decoration.ui;
+    final colors = widget.decoration.colors;
+    final icons = widget.decoration.icons;
+    final sizes = widget.decoration.sizes;
+    final styles = widget.decoration.styles;
+    final ui = widget.decoration.ui;
     final themeData = Theme.of(context);
 
     return Column(
@@ -110,27 +115,27 @@ class OperanceDataRow<T> extends StatelessWidget {
       children: <Widget>[
         MouseRegion(
           cursor:
-              onRowPressed != null ? ui.rowCursor : SystemMouseCursors.basic,
-          onEnter: onRowPressed != null ? onEnter : null,
-          onExit: onRowPressed != null ? onExit : null,
+              widget.onRowPressed != null ? ui.rowCursor : SystemMouseCursors.basic,
+          onEnter: widget.onRowPressed != null ? widget.onEnter : null,
+          onExit: widget.onRowPressed != null ? widget.onExit : null,
           child: GestureDetector(
-            onTap: onRowPressed != null ? () => onRowPressed!(row) : null,
+            onTap: widget.onRowPressed != null ? () => widget.onRowPressed!(widget.row) : null,
             child: AnimatedContainer(
               duration: Duration(
                 milliseconds: ui.animationDuration,
               ),
-              color: isSelected
+              color: widget.isSelected
                   ? colors.rowSelectedColor.withOpacity(0.3)
-                  : (isHovered ? colors.rowHoverColor : colors.rowColor),
+                  : (widget.isHovered ? colors.rowHoverColor : colors.rowColor),
               child: Row(
                 children: <Widget>[
-                  if (showExpansionIcon)
+                  if (widget.showExpansionIcon)
                     MouseRegion(
-                      cursor: onRowPressed != null
+                      cursor: widget.onRowPressed != null
                           ? ui.rowCursor
                           : SystemMouseCursors.basic,
                       child: GestureDetector(
-                        onTap: () => onExpanded!.call(index),
+                        onTap: () => widget.onExpanded!.call(widget.index),
                         child: SizedBox(
                           width: 50.0,
                           child: AnimatedSwitcher(
@@ -139,7 +144,7 @@ class OperanceDataRow<T> extends StatelessWidget {
                             ),
                             transitionBuilder: (child, animation) {
                               return RotationTransition(
-                                turns: child.key == ValueKey('expanded_$index')
+                                turns: child.key == ValueKey('expanded_${widget.index}')
                                     ? Tween<double>(
                                         begin: 0.5,
                                         end: 1.0,
@@ -155,13 +160,13 @@ class OperanceDataRow<T> extends StatelessWidget {
                               );
                             },
                             child: Icon(
-                              isExpanded
+                              widget.isExpanded
                                   ? icons.rowExpansionIconExpanded
                                   : icons.rowExpansionIconCollapsed,
                               key: ValueKey(
-                                isExpanded
-                                    ? 'expanded_$index'
-                                    : 'collapsed_$index',
+                                widget.isExpanded
+                                    ? 'expanded_${widget.index}'
+                                    : 'collapsed_${widget.index}',
                               ),
                               color: themeData.textTheme.bodyLarge?.color,
                             ),
@@ -169,27 +174,27 @@ class OperanceDataRow<T> extends StatelessWidget {
                         ),
                       ),
                     ),
-                  if (showCheckbox)
+                  if (widget.showCheckbox)
                     SizedBox(
                       width: 50.0,
                       child: Checkbox(
-                        value: isSelected,
+                        value: widget.isSelected,
                         onChanged: (value) {
-                          onChecked?.call(index, isSelected: value);
+                          widget.onChecked?.call(widget.index, isSelected: value);
                         },
                       ),
                     ),
-                  ...columnOrder.map((index) {
-                    final column = columns[index];
+                  ...widget.columnOrder.map((index) {
+                    final column = widget.columns[index];
 
                     return Container(
                       alignment: column.numeric
                           ? Alignment.centerRight
                           : Alignment.centerLeft,
                       padding: styles.cellPadding,
-                      width: column.width.value(tableWidth),
+                      width: column.width.value(widget.tableWidth),
                       height: sizes.rowHeight,
-                      child: column.cellBuilder(context, row),
+                      child: column.cellBuilder(context, widget.row),
                     );
                   }),
                 ],
@@ -202,10 +207,10 @@ class OperanceDataRow<T> extends StatelessWidget {
             milliseconds: ui.animationDuration,
           ),
           curve: Curves.easeInOut,
-          child: isExpanded
+          child: widget.isExpanded
               ? Container(
                   padding: styles.rowExpandedContainerPadding,
-                  child: expansionBuilder?.call(row),
+                  child: widget.expansionBuilder?.call(widget.row),
                 )
               : SizedBox.shrink(),
         ),

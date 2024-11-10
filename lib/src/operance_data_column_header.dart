@@ -8,7 +8,7 @@ import 'package:operance_datatable/src/operance_data_decoration.dart';
 
 /// A widget that represents the header of a data column in the Operance data
 /// table.
-class OperanceDataColumnHeader<T> extends StatelessWidget {
+class OperanceDataColumnHeader<T> extends StatefulWidget {
   /// Creates an instance of [OperanceDataColumnHeader].
   ///
   /// The [columnOrder], [columns] and [tableWidth] parameters are required.
@@ -76,48 +76,55 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
   final bool selectable;
 
   @override
+  State<OperanceDataColumnHeader<T>> createState() =>
+      _OperanceDataColumnHeaderState<T>();
+}
+
+class _OperanceDataColumnHeaderState<T>
+    extends State<OperanceDataColumnHeader<T>> {
+  @override
   Widget build(BuildContext context) {
-    final sizes = decoration.sizes;
-    final styles = decoration.styles;
+    final sizes = widget.decoration.sizes;
+    final styles = widget.decoration.styles;
 
     return RepaintBoundary(
       child: SizedBox(
         height: sizes.columnHeaderHeight,
         child: Row(
           children: <Widget>[
-            if (expandable)
+            if (widget.expandable)
               Container(
                 decoration: styles.columnHeaderDecoration,
                 width: 50.0,
                 height: sizes.columnHeaderHeight,
               ),
-            if (selectable)
+            if (widget.selectable)
               SizedBox(
                 width: 50,
                 height: sizes.columnHeaderHeight,
                 child: _SelectableCheckbox(
-                  decoration: decoration,
-                  selectedRows: selectedRows,
-                  currentRows: currentRows,
-                  onChecked: onChecked,
+                  decoration: widget.decoration,
+                  selectedRows: widget.selectedRows,
+                  currentRows: widget.currentRows,
+                  onChecked: widget.onChecked,
                 ),
               ),
-            for (final index in columnOrder)
+            for (final index in widget.columnOrder)
               _ColumnHeaderCell<T>(
                 key: ValueKey('column_$index'),
-                column: columns[index],
-                tableWidth: tableWidth,
-                decoration: decoration,
-                onSort: onSort,
-                sorts: sorts,
-                allowColumnReorder: allowColumnReorder,
-                onColumnDragged: onColumnDragged != null
-                    ? (fromIndex) => onColumnDragged!(fromIndex, index)
+                column: widget.columns[index],
+                tableWidth: widget.tableWidth,
+                decoration: widget.decoration,
+                onSort: widget.onSort,
+                sorts: widget.sorts,
+                allowColumnReorder: widget.allowColumnReorder,
+                onColumnDragged: widget.onColumnDragged != null
+                    ? (fromIndex) => widget.onColumnDragged!(fromIndex, index)
                     : null,
-                columnOrder: columnOrder,
+                columnOrder: widget.columnOrder,
                 index: index,
               ),
-            for (final child in trailing)
+            for (final child in widget.trailing)
               Container(
                 decoration: styles.columnHeaderDecoration,
                 width: 50.0,
