@@ -304,6 +304,9 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     final styles = _decoration.styles;
     final ui = _decoration.ui;
     final searchPosition = ui.searchPosition;
+    final localizations = MaterialLocalizations.of(context);
+    final themeData = Theme.of(context);
+    final footerTextStyle = themeData.textTheme.bodySmall;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -519,17 +522,20 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                           ? Row(
                               children: <Widget>[
                                 Text(
-                                  ui.rowsPerPageText,
-                                  style: styles.rowsPerPageTextStyle,
+                                  localizations.rowsPerPageTitle,
                                 ),
                                 const SizedBox(width: 8.0),
                                 DropdownButton<int>(
                                   value: _rowsPerPage,
+                                  dropdownColor: themeData.cardColor,
                                   items: ui.rowsPerPageOptions.map(
                                     (value) {
                                       return DropdownMenuItem<int>(
                                         value: value,
-                                        child: Text(value.toString()),
+                                        child: Text(
+                                          value.toString(),
+                                          style: footerTextStyle,
+                                        ),
                                       );
                                     },
                                   ).toList(),
