@@ -245,7 +245,7 @@ class OperanceDataUI {
   /// All parameters are optional and have default values.
   const OperanceDataUI({
     this.animationDuration = 300,
-    this.rowsPerPageOptions = const <int>[25, 50, 100],
+    this.rowsPerPageOptions = const <int>[20, 50, 100],
     this.searchPosition = SearchPosition.right,
     this.horizontalScrollPhysics = const BouncingScrollPhysics(),
     this.verticalScrollPhysics = const BouncingScrollPhysics(),

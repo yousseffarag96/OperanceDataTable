@@ -305,268 +305,272 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     final ui = _decoration.ui;
     final searchPosition = ui.searchPosition;
 
-    return LayoutBuilder(builder: (context, constraints) {
-      final isDesktopPlatform = defaultTargetPlatform == TargetPlatform.macOS ||
-          defaultTargetPlatform == TargetPlatform.windows ||
-          defaultTargetPlatform == TargetPlatform.linux;
-      final tableWidth = isDesktopPlatform
-          ? constraints.maxWidth
-          : constraints.maxWidth > constraints.maxHeight
-              ? constraints.maxWidth
-              : constraints.maxHeight;
-      final availableWidth = tableWidth - _extrasWidth;
-      final tableHeight = constraints.maxHeight;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktopPlatform =
+            defaultTargetPlatform == TargetPlatform.macOS ||
+                defaultTargetPlatform == TargetPlatform.windows ||
+                defaultTargetPlatform == TargetPlatform.linux;
+        final tableWidth = isDesktopPlatform
+            ? constraints.maxWidth
+            : constraints.maxWidth > constraints.maxHeight
+                ? constraints.maxWidth
+                : constraints.maxHeight;
+        final availableWidth = tableWidth - _extrasWidth;
+        final tableHeight = constraints.maxHeight;
 
-      return KeyboardListener(
-        focusNode: _keyboardFocusNode,
-        onKeyEvent: _hoverRow,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // ------------------------------ Header ---------------------------
-            if (_showHeader)
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: sizes.headerHorizontalPadding,
-                ),
-                decoration: styles.headerDecoration,
-                height: sizes.headerHeight,
-                child: Row(
-                  children: <Widget>[
-                    if (_searchable && searchPosition == SearchPosition.left)
-                      SearchField(
-                        decoration: _decoration,
-                        controller: _searchFieldController,
-                        focusNode: _searchFieldFocusNode,
-                        onChanged: _onSearchFieldChanged,
-                      ),
-                    ..._header,
-                    if (_searchable &&
-                        searchPosition == SearchPosition.right) ...<Widget>[
-                      const Spacer(),
-                      SearchField(
-                        decoration: _decoration,
-                        controller: _searchFieldController,
-                        focusNode: _searchFieldFocusNode,
-                        onChanged: _onSearchFieldChanged,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            // ------------------------------ Table ----------------------------
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                physics: ui.horizontalScrollPhysics,
-                controller: _horizontalScrollController,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: _tableMaxWidth(tableWidth),
+        return KeyboardListener(
+          focusNode: _keyboardFocusNode,
+          onKeyEvent: _hoverRow,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              // ------------------------------ Header ---------------------------
+              if (_showHeader)
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: sizes.headerHorizontalPadding,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                  decoration: styles.headerDecoration,
+                  height: sizes.headerHeight,
+                  child: Row(
                     children: <Widget>[
-                      if (_showColumnHeader)
-                        OperanceDataColumnHeader<T>(
-                          columnOrder: _columnOrder,
-                          columns: _columns,
-                          tableWidth: availableWidth,
-                          trailing: _columnHeaderTrailingActions,
-                          onChecked: (value) {
-                            _controller.toggleAllSelectedRows(
-                                isSelected: value);
-                            _onSelectionChanged?.call(_selectedRows.toList());
-                          },
-                          onColumnDragged: _controller.reOrderColumn,
-                          onSort: _controller.setSort,
-                          sorts: _controller.sorts,
-                          currentRows: _currentRows,
-                          selectedRows: _selectedRows,
+                      if (_searchable && searchPosition == SearchPosition.left)
+                        SearchField(
                           decoration: _decoration,
-                          allowColumnReorder: _allowColumnReorder,
-                          expandable: _expandable,
-                          selectable: _selectable,
+                          controller: _searchFieldController,
+                          focusNode: _searchFieldFocusNode,
+                          onChanged: _onSearchFieldChanged,
                         ),
-                      Expanded(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: constraints.maxWidth,
-                          ),
-                          child: Builder(
-                            builder: (context) {
-                              if (!_controller.isLoading &&
-                                  _currentRows.isEmpty &&
-                                  _emptyStateBuilder != null) {
-                                return _emptyStateBuilder.call(context);
-                              }
-
-                              var itemCount = _activeRows.length;
-                              final rowHeight = sizes.rowHeight;
-
-                              if (_showEmptyRows &&
-                                  (itemCount < tableHeight / rowHeight)) {
-                                final emptyRows =
-                                    tableHeight / rowHeight - itemCount;
-
-                                itemCount += emptyRows.toInt();
-                              }
-
-                              return Stack(
-                                children: <Widget>[
-                                  ListView.separated(
-                                    controller: _verticalScrollController,
-                                    shrinkWrap: true,
-                                    itemCount: itemCount,
-                                    itemBuilder: (context, index) {
-                                      if (index >= _activeRows.length) {
-                                        return Container(
-                                          height: sizes.rowHeight,
-                                          color: colors.rowColor,
-                                        );
-                                      }
-
-                                      return OperanceDataRow(
-                                        key: ValueKey(_activeRows[index]),
-                                        columnOrder: _columnOrder,
-                                        columns: _columns,
-                                        row: _activeRows[index],
-                                        index: index,
-                                        tableWidth: availableWidth,
-                                        onEnter: (_) {
-                                          _controller.setHoveredRowIndex(index);
-                                        },
-                                        onExit: (_) {
-                                          _controller.clearHoveredRowIndex();
-                                        },
-                                        onExpanded: _expandable
-                                            ? _controller.toggleExpandedRow
-                                            : null,
-                                        expansionBuilder: _expansionBuilder,
-                                        onChecked: _selectable
-                                            ? (index, {isSelected}) {
-                                                _controller.toggleSelectedRow(
-                                                  _activeRows[index],
-                                                );
-                                                _onSelectionChanged?.call(
-                                                  _selectedRows.toList(),
-                                                );
-                                              }
-                                            : null,
-                                        onRowPressed: _onRowPressed,
-                                        decoration: _decoration,
-                                        isHovered: _isHovered(index),
-                                        isSelected: _isSelected(index),
-                                        isExpanded: _isExpanded(index),
-                                        showExpansionIcon: _expandable,
-                                        showCheckbox: _selectable,
-                                      );
-                                    },
-                                    separatorBuilder: (context, index) {
-                                      if (!ui.rowDividerEnabled) {
-                                        return const SizedBox();
-                                      }
-
-                                      return Divider(
-                                        height: sizes.rowDividerHeight,
-                                        thickness: sizes.rowDividerThickness,
-                                        color: colors.rowDividerColor,
-                                        indent: sizes.rowDividerIndent,
-                                        endIndent: sizes.rowDividerEndIndent,
-                                      );
-                                    },
-                                  ),
-                                  if (_controller.isLoading)
-                                    _loadingStateBuilder != null
-                                        ? _loadingStateBuilder.call(context)
-                                        : LinearProgressIndicator(
-                                            backgroundColor:
-                                                colors.loadingBackgroundColor,
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                              colors.loadingProgressColor,
-                                            ),
-                                            minHeight: sizes.loadingHeight,
-                                            borderRadius:
-                                                styles.loadingBorderRadius,
-                                          ),
-                                ],
-                              );
-                            },
-                          ),
+                      ..._header,
+                      if (_searchable &&
+                          searchPosition == SearchPosition.right) ...<Widget>[
+                        const Spacer(),
+                        SearchField(
+                          decoration: _decoration,
+                          controller: _searchFieldController,
+                          focusNode: _searchFieldFocusNode,
+                          onChanged: _onSearchFieldChanged,
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
-              ),
-            ),
-            // ------------------------------ Footer ---------------------------
-            if (_showFooter && !_infiniteScroll)
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: sizes.footerHorizontalPadding,
-                ),
-                decoration: styles.footerDecoration,
-                height: sizes.footerHeight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    _showRowsPerPageOptions
-                        ? Row(
-                            children: <Widget>[
-                              Text(
-                                ui.rowsPerPageText,
-                                style: styles.rowsPerPageTextStyle,
-                              ),
-                              const SizedBox(width: 8.0),
-                              DropdownButton<int>(
-                                value: _rowsPerPage,
-                                items: ui.rowsPerPageOptions.map(
-                                  (value) {
-                                    return DropdownMenuItem<int>(
-                                      value: value,
-                                      child: Text(value.toString()),
-                                    );
-                                  },
-                                ).toList(),
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    _controller.setRowsPerPage(value);
-                                  }
-                                },
-                              ),
-                            ],
-                          )
-                        : const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+              // ------------------------------ Table ----------------------------
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: ui.horizontalScrollPhysics,
+                  controller: _horizontalScrollController,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: _tableMaxWidth(tableWidth),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
-                        IconButton(
-                          icon: Icon(icons.previousPageIcon),
-                          onPressed: _controller.canGoPrevious
-                              ? _controller.previousPage
-                              : null,
-                          splashRadius: 24.0,
-                        ),
-                        const SizedBox(width: 12.0),
-                        IconButton(
-                          icon: Icon(icons.nextPageIcon),
-                          onPressed:
-                              _controller.canGoNext || _controller.canFetchNext
-                                  ? _controller.nextPage
-                                  : null,
-                          splashRadius: 24.0,
+                        if (_showColumnHeader)
+                          OperanceDataColumnHeader<T>(
+                            columnOrder: _columnOrder,
+                            columns: _columns,
+                            tableWidth: availableWidth,
+                            trailing: _columnHeaderTrailingActions,
+                            onChecked: (value) {
+                              _controller.toggleAllSelectedRows(
+                                  isSelected: value);
+                              _onSelectionChanged?.call(_selectedRows.toList());
+                            },
+                            onColumnDragged: _controller.reOrderColumn,
+                            onSort: _controller.setSort,
+                            sorts: _controller.sorts,
+                            currentRows: _currentRows,
+                            selectedRows: _selectedRows,
+                            decoration: _decoration,
+                            allowColumnReorder: _allowColumnReorder,
+                            expandable: _expandable,
+                            selectable: _selectable,
+                          ),
+                        Expanded(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: constraints.maxWidth,
+                            ),
+                            child: Builder(
+                              builder: (context) {
+                                if (!_controller.isLoading &&
+                                    _currentRows.isEmpty &&
+                                    _emptyStateBuilder != null) {
+                                  return _emptyStateBuilder.call(context);
+                                }
+
+                                var itemCount = _activeRows.length;
+                                final rowHeight = sizes.rowHeight;
+
+                                if (_showEmptyRows &&
+                                    (itemCount < tableHeight / rowHeight)) {
+                                  final emptyRows =
+                                      tableHeight / rowHeight - itemCount;
+
+                                  itemCount += emptyRows.toInt();
+                                }
+
+                                return Stack(
+                                  children: <Widget>[
+                                    ListView.separated(
+                                      controller: _verticalScrollController,
+                                      shrinkWrap: true,
+                                      itemCount: itemCount,
+                                      itemBuilder: (context, index) {
+                                        if (index >= _activeRows.length) {
+                                          return Container(
+                                            height: sizes.rowHeight,
+                                            color: colors.rowColor,
+                                          );
+                                        }
+
+                                        return OperanceDataRow(
+                                          key: ValueKey(_activeRows[index]),
+                                          columnOrder: _columnOrder,
+                                          columns: _columns,
+                                          row: _activeRows[index],
+                                          index: index,
+                                          tableWidth: availableWidth,
+                                          onEnter: (_) {
+                                            _controller
+                                                .setHoveredRowIndex(index);
+                                          },
+                                          onExit: (_) {
+                                            _controller.clearHoveredRowIndex();
+                                          },
+                                          onExpanded: _expandable
+                                              ? _controller.toggleExpandedRow
+                                              : null,
+                                          expansionBuilder: _expansionBuilder,
+                                          onChecked: _selectable
+                                              ? (index, {isSelected}) {
+                                                  _controller.toggleSelectedRow(
+                                                    _activeRows[index],
+                                                  );
+                                                  _onSelectionChanged?.call(
+                                                    _selectedRows.toList(),
+                                                  );
+                                                }
+                                              : null,
+                                          onRowPressed: _onRowPressed,
+                                          decoration: _decoration,
+                                          isHovered: _isHovered(index),
+                                          isSelected: _isSelected(index),
+                                          isExpanded: _isExpanded(index),
+                                          showExpansionIcon: _expandable,
+                                          showCheckbox: _selectable,
+                                        );
+                                      },
+                                      separatorBuilder: (context, index) {
+                                        if (!ui.rowDividerEnabled) {
+                                          return const SizedBox();
+                                        }
+
+                                        return Divider(
+                                          height: sizes.rowDividerHeight,
+                                          thickness: sizes.rowDividerThickness,
+                                          color: colors.rowDividerColor,
+                                          indent: sizes.rowDividerIndent,
+                                          endIndent: sizes.rowDividerEndIndent,
+                                        );
+                                      },
+                                    ),
+                                    if (_controller.isLoading)
+                                      _loadingStateBuilder != null
+                                          ? _loadingStateBuilder.call(context)
+                                          : LinearProgressIndicator(
+                                              backgroundColor:
+                                                  colors.loadingBackgroundColor,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                colors.loadingProgressColor,
+                                              ),
+                                              minHeight: sizes.loadingHeight,
+                                              borderRadius:
+                                                  styles.loadingBorderRadius,
+                                            ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-          ],
-        ),
-      );
-    });
+              // ------------------------------ Footer ---------------------------
+              if (_showFooter && !_infiniteScroll)
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: sizes.footerHorizontalPadding,
+                  ),
+                  decoration: styles.footerDecoration,
+                  height: sizes.footerHeight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      _showRowsPerPageOptions
+                          ? Row(
+                              children: <Widget>[
+                                Text(
+                                  ui.rowsPerPageText,
+                                  style: styles.rowsPerPageTextStyle,
+                                ),
+                                const SizedBox(width: 8.0),
+                                DropdownButton<int>(
+                                  value: _rowsPerPage,
+                                  items: ui.rowsPerPageOptions.map(
+                                    (value) {
+                                      return DropdownMenuItem<int>(
+                                        value: value,
+                                        child: Text(value.toString()),
+                                      );
+                                    },
+                                  ).toList(),
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      _controller.setRowsPerPage(value);
+                                    }
+                                  },
+                                ),
+                              ],
+                            )
+                          : const Spacer(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          IconButton(
+                            icon: Icon(icons.previousPageIcon),
+                            onPressed: _controller.canGoPrevious
+                                ? _controller.previousPage
+                                : null,
+                            splashRadius: 24.0,
+                          ),
+                          const SizedBox(width: 12.0),
+                          IconButton(
+                            icon: Icon(icons.nextPageIcon),
+                            onPressed: _controller.canGoNext ||
+                                    _controller.canFetchNext
+                                ? _controller.nextPage
+                                : null,
+                            splashRadius: 24.0,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   /// Gets the order of the columns.
