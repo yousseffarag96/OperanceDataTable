@@ -103,6 +103,7 @@ class OperanceDataRow<T> extends StatelessWidget {
     final sizes = decoration.sizes;
     final styles = decoration.styles;
     final ui = decoration.ui;
+    final themeData = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -162,7 +163,7 @@ class OperanceDataRow<T> extends StatelessWidget {
                                     ? 'expanded_$index'
                                     : 'collapsed_$index',
                               ),
-                              color: colors.rowExpansionIconColor,
+                              color: themeData.textTheme.bodyLarge?.color,
                             ),
                           ),
                         ),
