@@ -274,7 +274,7 @@ void main() {
         );
         expect(
           ui.rowsPerPageOptions,
-          <int>[25, 50, 100],
+          <int>[20, 50, 100],
         );
       });
     });

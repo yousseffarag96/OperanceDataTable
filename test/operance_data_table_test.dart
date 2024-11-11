@@ -564,7 +564,7 @@ void main() {
 
         final newPageRow = find.descendant(
           of: find.byType(OperanceDataRow<String>),
-          matching: find.text('Row 25'),
+          matching: find.text('Row 20'),
         );
 
         expect(newPageRow, findsOneWidget);

@@ -114,12 +114,15 @@ class _OperanceDataRowState<T> extends State<OperanceDataRow<T>> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         MouseRegion(
-          cursor:
-              widget.onRowPressed != null ? ui.rowCursor : SystemMouseCursors.basic,
-          onEnter: widget.onRowPressed != null ? widget.onEnter : null,
-          onExit: widget.onRowPressed != null ? widget.onExit : null,
+          cursor: widget.onRowPressed != null
+              ? ui.rowCursor
+              : SystemMouseCursors.basic,
+          onEnter: widget.onEnter,
+          onExit: widget.onExit,
           child: GestureDetector(
-            onTap: widget.onRowPressed != null ? () => widget.onRowPressed!(widget.row) : null,
+            onTap: widget.onRowPressed != null
+                ? () => widget.onRowPressed!(widget.row)
+                : null,
             child: AnimatedContainer(
               duration: Duration(
                 milliseconds: ui.animationDuration,
@@ -144,7 +147,8 @@ class _OperanceDataRowState<T> extends State<OperanceDataRow<T>> {
                             ),
                             transitionBuilder: (child, animation) {
                               return RotationTransition(
-                                turns: child.key == ValueKey('expanded_${widget.index}')
+                                turns: child.key ==
+                                        ValueKey('expanded_${widget.index}')
                                     ? Tween<double>(
                                         begin: 0.5,
                                         end: 1.0,
@@ -180,7 +184,8 @@ class _OperanceDataRowState<T> extends State<OperanceDataRow<T>> {
                       child: Checkbox(
                         value: widget.isSelected,
                         onChanged: (value) {
-                          widget.onChecked?.call(widget.index, isSelected: value);
+                          widget.onChecked
+                              ?.call(widget.index, isSelected: value);
                         },
                       ),
                     ),

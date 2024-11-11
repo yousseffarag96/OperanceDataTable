@@ -38,7 +38,7 @@ class OperanceDataController<T> extends ChangeNotifier {
   var _hasMore = false;
 
   /// The number of rows per page.
-  var _rowsPerPage = 25;
+  var _rowsPerPage = 20;
 
   /// The current page index.
   var _currentPageIndex = 0;
@@ -132,7 +132,7 @@ class OperanceDataController<T> extends ChangeNotifier {
     List<int> columnOrder = const <int>[],
     PageData<T> initialPage = (const [], false),
     int currentPageIndex = 0,
-    int rowsPerPage = 25,
+    int rowsPerPage = 20,
     bool infiniteScroll = false,
     ValueChanged<int>? onCurrentPageIndexChanged,
     OnFetch<T>? onFetch,

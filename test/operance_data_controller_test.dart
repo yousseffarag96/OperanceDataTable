@@ -13,7 +13,7 @@ void main() {
   );
   const columnOrder = <int>[0, 1, 2];
   const currentPageIndex = 1;
-  const rowsPerPage = 25;
+  const rowsPerPage = 20;
   const rowsPerPage10 = 10;
   const initialPageWithRows = (<String>['Row1', 'Row2'], false);
 
@@ -28,7 +28,7 @@ void main() {
       List<int> columnOrder = const <int>[],
       PageData<String> initialPage = emptyPage,
       int currentPageIndex = 0,
-      int rowsPerPage = 25,
+      int rowsPerPage = 20,
       bool infiniteScroll = false,
       OnFetch<String>? onFetch,
     }) async {
