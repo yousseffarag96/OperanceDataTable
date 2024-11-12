@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:math' as math;
 
 // 🌎 Project imports:
 import 'package:operance_datatable/src/misc.dart';
@@ -28,6 +29,7 @@ class OperanceDataTable<T> extends StatefulWidget {
   /// parameters are optional.
   OperanceDataTable({
     required this.columns,
+    required this.total,
     this.onFetch,
     this.controller,
     this.keyboardFocusNode,
@@ -164,6 +166,9 @@ class OperanceDataTable<T> extends StatefulWidget {
 
   /// Indicates whether column reordering is allowed.
   final bool allowColumnReorder;
+
+// Indicatiates the total data
+  final int total;
 
   @override
   OperanceDataTableState<T> createState() => OperanceDataTableState<T>();
@@ -548,6 +553,27 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                               ],
                             )
                           : const Spacer(),
+                      Container(width: 32.0),
+                      Text(
+                        localizations.pageRowsInfoTitle(
+                          _controller.currentPageIndex == 0
+                              ? _controller.currentPageIndex + 1
+                              : _controller.allRows
+                                      .indexOf(_controller.currentRows.first) +
+                                  1,
+                          math.min(
+                              _controller.currentPageIndex == 0
+                                  ? _controller.rowsPerPage +
+                                      _controller.currentPageIndex
+                                  : _controller.allRows.indexOf(
+                                          _controller.currentRows.first) +
+                                      _controller.rowsPerPage,
+                              widget.total),
+                          widget.total,
+                          false,
+                        ),
+                      ),
+                      Container(width: 32.0),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
