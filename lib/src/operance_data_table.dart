@@ -312,8 +312,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
           widget.total);
 
   void _handleLast() => _controller.lastPage(
-      ((widget.total - 1) / _controller.rowsPerPage).floor() *
-          _controller.rowsPerPage);
+      ((widget.total) / _controller.rowsPerPage).ceil());
 
   void _handleFirst() => _controller.firstPage();
 
