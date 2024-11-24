@@ -182,6 +182,20 @@ class OperanceDataController<T> extends ChangeNotifier {
     }
   }
 
+  /// the last page.
+  Future<void> lastPage(int lastNumber) async {
+    if (_isLoading) {
+      return;
+    }
+    if (canGoNext) {
+      _currentPageIndex = lastNumber;
+      _onCurrentPageIndexChanged?.call(_currentPageIndex);
+      notifyListeners();
+
+      return;
+    }
+  }
+
   /// Resets the data and fetches the initial page.
   Future<void> _resetData() async {
     _pages.clear();
@@ -234,6 +248,15 @@ class OperanceDataController<T> extends ChangeNotifier {
   void previousPage() {
     if (canGoPrevious) {
       _currentPageIndex--;
+      _onCurrentPageIndexChanged?.call(_currentPageIndex);
+      notifyListeners();
+    }
+  }
+
+  /// Navigates to the first page.
+  void firstPage() {
+    if (canGoPrevious) {
+      _currentPageIndex = 0;
       _onCurrentPageIndexChanged?.call(_currentPageIndex);
       notifyListeners();
     }

@@ -197,6 +197,7 @@ class _MyHomePageState extends State<MyHomePage> {
         showEmptyRows: true,
         showRowsPerPageOptions: true,
         allowColumnReorder: true,
+        showFirstLastButtons: true,
       ),
     );
   }

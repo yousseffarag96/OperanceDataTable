@@ -59,6 +59,7 @@ class OperanceDataTable<T> extends StatefulWidget {
     this.showRowsPerPageOptions = false,
     this.infiniteScroll = false,
     this.allowColumnReorder = false,
+    this.showFirstLastButtons = false,
     super.key,
   })  : assert(
           columns.isNotEmpty,
@@ -169,6 +170,9 @@ class OperanceDataTable<T> extends StatefulWidget {
 
 // Indicatiates the total data
   final int total;
+
+  /// Indicates whether first & last pages to be shown .
+  final bool showFirstLastButtons;
 
   @override
   OperanceDataTableState<T> createState() => OperanceDataTableState<T>();
@@ -301,6 +305,18 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     super.dispose();
   }
 
+  bool _isNextPageUnavailable() => _controller.currentPageIndex == 0
+      ? (_controller.rowsPerPage + _controller.currentPageIndex >= widget.total)
+      : (_controller.allRows.indexOf(_controller.currentRows.first) +
+              _controller.rowsPerPage >=
+          widget.total);
+
+  void _handleLast() => _controller.lastPage(
+      ((widget.total - 1) / _controller.rowsPerPage).floor() *
+          _controller.rowsPerPage);
+
+  void _handleFirst() => _controller.firstPage();
+
   @override
   Widget build(BuildContext context) {
     final colors = _decoration.colors;
@@ -312,6 +328,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     final localizations = MaterialLocalizations.of(context);
     final themeData = Theme.of(context);
     final footerTextStyle = themeData.textTheme.bodySmall;
+    final currentLocale = Directionality.of(context);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -577,6 +594,24 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
+                          if (widget.showFirstLastButtons &&
+                              currentLocale == TextDirection.ltr)
+                            IconButton(
+                              icon: const Icon(Icons.skip_previous),
+                              padding: EdgeInsets.zero,
+                              onPressed: _controller.currentPageIndex <= 0
+                                  ? null
+                                  : _handleFirst,
+                            )
+                          else if (widget.showFirstLastButtons &&
+                              currentLocale == TextDirection.rtl)
+                            IconButton(
+                              icon: const Icon(Icons.skip_next),
+                              padding: EdgeInsets.zero,
+                              onPressed: _controller.currentPageIndex <= 0
+                                  ? null
+                                  : _handleFirst,
+                            ),
                           IconButton(
                             icon: Icon(icons.previousPageIcon),
                             onPressed: _controller.canGoPrevious
@@ -593,6 +628,22 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                                 : null,
                             splashRadius: 24.0,
                           ),
+                          if (widget.showFirstLastButtons &&
+                              currentLocale == TextDirection.ltr)
+                            IconButton(
+                              icon: const Icon(Icons.skip_next),
+                              padding: EdgeInsets.zero,
+                              onPressed:
+                                  _isNextPageUnavailable() ? null : _handleLast,
+                            )
+                          else if (widget.showFirstLastButtons &&
+                              currentLocale == TextDirection.rtl)
+                            IconButton(
+                              icon: const Icon(Icons.skip_previous),
+                              padding: EdgeInsets.zero,
+                              onPressed:
+                                  _isNextPageUnavailable() ? null : _handleLast,
+                            ),
                         ],
                       ),
                     ],
