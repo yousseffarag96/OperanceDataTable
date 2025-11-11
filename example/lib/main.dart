@@ -190,6 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         },
         expandable: true,
+        expandOnRowClick: true,
         total: 1000,
         selectable: true,
         searchable: true,

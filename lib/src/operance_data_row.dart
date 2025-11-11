@@ -14,7 +14,7 @@ class OperanceDataRow<T> extends StatefulWidget {
   /// are required.
   /// The [onEnter], [onExit], [onExpanded], [expansionBuilder], [onChecked],
   /// [onRowPressed], [decoration], [isHovered], [isSelected], [isExpanded],
-  /// [showExpansionIcon], and [showCheckbox] parameters are optional.
+  /// [showExpansionIcon], [showCheckbox], and [expandOnRowClick] parameters are optional.
   const OperanceDataRow({
     required this.columnOrder,
     required this.columns,
@@ -33,6 +33,7 @@ class OperanceDataRow<T> extends StatefulWidget {
     this.isExpanded = false,
     this.showExpansionIcon = false,
     this.showCheckbox = false,
+    this.expandOnRowClick = false,
     super.key,
   })  : assert(
           !showExpansionIcon ||
@@ -43,6 +44,11 @@ class OperanceDataRow<T> extends StatefulWidget {
         assert(
           !showCheckbox || onChecked != null,
           'if showCheckbox is true then onChecked must not be null',
+        ),
+        assert(
+          !expandOnRowClick || (onExpanded != null && expansionBuilder != null),
+          'if expandOnRowClick is true then onExpanded and expansionBuilder '
+          'must not be null',
         );
 
   /// The order of the columns.
@@ -96,6 +102,9 @@ class OperanceDataRow<T> extends StatefulWidget {
   /// Indicates whether the checkbox is shown.
   final bool showCheckbox;
 
+  /// Indicates whether clicking anywhere on the row will trigger expansion.
+  final bool expandOnRowClick;
+
   @override
   State<OperanceDataRow<T>> createState() => _OperanceDataRowState<T>();
 }
@@ -114,15 +123,20 @@ class _OperanceDataRowState<T> extends State<OperanceDataRow<T>> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         MouseRegion(
-          cursor: widget.onRowPressed != null
+          cursor: (widget.onRowPressed != null || widget.expandOnRowClick)
               ? ui.rowCursor
               : SystemMouseCursors.basic,
           onEnter: widget.onEnter,
           onExit: widget.onExit,
           child: GestureDetector(
-            onTap: widget.onRowPressed != null
-                ? () => widget.onRowPressed!(widget.row)
-                : null,
+            onTap: () {
+              if (widget.expandOnRowClick && widget.onExpanded != null) {
+                widget.onExpanded!.call(widget.index);
+              }
+              if (widget.onRowPressed != null) {
+                widget.onRowPressed!(widget.row);
+              }
+            },
             child: AnimatedContainer(
               duration: Duration(
                 milliseconds: ui.animationDuration,

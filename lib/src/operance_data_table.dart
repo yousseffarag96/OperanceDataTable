@@ -23,7 +23,7 @@ class OperanceDataTable<T> extends StatefulWidget {
   /// [loadingStateBuilder], [emptyStateBuilder], [expansionBuilder],
   /// [onRowPressed], [onSelectionChanged], [onCurrentPageIndexChanged],
   /// [decoration], [initialPage], [currentPageIndex], [header],
-  /// [columnHeaderTrailingActions], [expandable], [selectable], [searchable],
+  /// [columnHeaderTrailingActions], [expandable], [expandOnRowClick], [selectable], [searchable],
   /// [showHeader], [showColumnHeader], [showFooter], [showEmptyRows],
   /// [showRowsPerPageOptions], [infiniteScroll] and [allowColumnReorder]
   /// parameters are optional.
@@ -50,6 +50,7 @@ class OperanceDataTable<T> extends StatefulWidget {
     this.header = const [],
     this.columnHeaderTrailingActions = const [],
     this.expandable = false,
+    this.expandOnRowClick = false,
     this.selectable = false,
     this.searchable = false,
     this.showHeader = false,
@@ -141,6 +142,9 @@ class OperanceDataTable<T> extends StatefulWidget {
   /// Indicates whether the rows are expandable.
   final bool expandable;
 
+  /// Indicates whether clicking anywhere on the row will trigger expansion.
+  final bool expandOnRowClick;
+
   /// Indicates whether the rows are selectable.
   final bool selectable;
 
@@ -203,6 +207,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   late final List<Widget> _header;
   late final List<Widget> _columnHeaderTrailingActions;
   late final bool _expandable;
+  late final bool _expandOnRowClick;
   late final bool _selectable;
   late final bool _searchable;
   late final bool _showHeader;
@@ -234,6 +239,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     _header = widget.header;
     _columnHeaderTrailingActions = widget.columnHeaderTrailingActions;
     _expandable = widget.expandable;
+    _expandOnRowClick = widget.expandOnRowClick;
     _selectable = widget.selectable;
     _searchable = widget.searchable;
     _showHeader = widget.showHeader;
@@ -311,8 +317,8 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
               _controller.rowsPerPage >=
           widget.total);
 
-  void _handleLast() => _controller.lastPage(
-      ((widget.total) / _controller.rowsPerPage).ceil());
+  void _handleLast() =>
+      _controller.lastPage(((widget.total) / _controller.rowsPerPage).ceil());
 
   void _handleFirst() => _controller.firstPage();
 
@@ -487,6 +493,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                                           isExpanded: _isExpanded(index),
                                           showExpansionIcon: _expandable,
                                           showCheckbox: _selectable,
+                                          expandOnRowClick: _expandOnRowClick,
                                         );
                                       },
                                       separatorBuilder: (context, index) {
