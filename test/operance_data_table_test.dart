@@ -69,7 +69,6 @@ void main() {
       bool showRowsPerPageOptions = false,
       bool infiniteScroll = false,
       bool allowColumnReorder = false,
-      int total = 0,
     }) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -108,7 +107,6 @@ void main() {
                 showRowsPerPageOptions: showRowsPerPageOptions,
                 infiniteScroll: infiniteScroll,
                 allowColumnReorder: allowColumnReorder,
-                total: total,
               ),
             ),
           ),
