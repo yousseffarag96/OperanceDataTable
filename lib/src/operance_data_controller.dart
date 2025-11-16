@@ -383,4 +383,11 @@ class OperanceDataController<T> extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void clearData() {
+    _pages.clear();
+    _currentPageIndex = 0;
+    _onCurrentPageIndexChanged?.call(_currentPageIndex);
+    notifyListeners();
+  }
 }
